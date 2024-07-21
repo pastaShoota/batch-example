@@ -12,20 +12,23 @@ import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilde
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
+import org.springframework.batch.item.file.mapping.FieldSetMapper;
+import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.batch.item.file.transform.Range;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
+import fr.chevallier31.my_batch.conversion.ConversionConfig.PointsMapper;
 import fr.chevallier31.my_batch.domain.PointsRecord;
 
 @Configuration
 public class BatchConfiguration {
 
     @Bean
-    public FlatFileItemReader<PointsRecord> reader() {
-        return new FlatFileItemReaderBuilder<PointsRecord>()
+    public FlatFileItemReader<Points> reader(PointsMapper pointsMapper) {
+        return new FlatFileItemReaderBuilder<Points>()
                 .name("points reader")
                 .resource(new ClassPathResource("input.csv"))
                 .linesToSkip(1)
@@ -36,7 +39,7 @@ public class BatchConfiguration {
                         new Range(95, 119))
                 .names("activityDate", "fidelityNumber",
                         "firstName", "lastName", "fidelityCode", "points", "filler")
-                .targetType(PointsRecord.class)
+                .fieldSetMapper(pointsMapper)
                 .build();
     }
 
@@ -70,9 +73,9 @@ public class BatchConfiguration {
 
     @Bean
     public Step step1(JobRepository jobRepository, DataSourceTransactionManager transactionManager,
-            FlatFileItemReader<PointsRecord> reader, PointsItemProcessor processor, JdbcBatchItemWriter<Points> writer) {
+            FlatFileItemReader<Points> reader, PointsItemProcessor processor, JdbcBatchItemWriter<Points> writer) {
         return new StepBuilder("step1", jobRepository)
-                .<PointsRecord, Points>chunk(3, transactionManager)
+                .<Points, Points>chunk(3, transactionManager)
                 .reader(reader)
                 .processor(processor)
                 .writer(writer)
