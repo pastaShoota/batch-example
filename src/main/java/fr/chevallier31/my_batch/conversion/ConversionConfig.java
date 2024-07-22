@@ -23,8 +23,7 @@ public class ConversionConfig {
         return cs;
     }
 
-    @Bean
-    public Converter<String,LocalDate> localDateConverter() {
+    private Converter<String,LocalDate> localDateConverter() {
         return new Converter<String,LocalDate>(){
             @Override
             public LocalDate convert(String text) {
@@ -34,9 +33,9 @@ public class ConversionConfig {
     }
 
     @Bean
-    public PointsMapper pointsMapper() {
+    public PointsMapper pointsMapper(ConversionService conversionService) {
         BeanWrapperFieldSetMapper<Points> mapper = new BeanWrapperFieldSetMapper<>();
-        mapper.setConversionService(conversionService());
+        mapper.setConversionService(conversionService);
         mapper.setTargetType(Points.class);
         return new PointsMapper(){
             @Override
