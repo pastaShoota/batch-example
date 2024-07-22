@@ -1,8 +1,6 @@
 package fr.chevallier31.my_batch;
 
-import java.sql.Date;
 import java.sql.Timestamp;
-import java.time.LocalDate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +9,6 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -36,7 +33,7 @@ public class JobCompletionNotificationListener implements JobExecutionListener {
                 jdbcTemplate.query(
                     """
                     SELECT activity_date, fidelity_number, first_name, last_name,
-                    fidelity_code, points FROM POINTS_TRANSIENT
+                    fidelity_code, points FROM POINTS
                     """,
                     new DataClassRowMapper<Points>(Points.class)
                     ).forEach((points) -> {

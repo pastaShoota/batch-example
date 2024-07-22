@@ -12,6 +12,7 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.transform.Range;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
@@ -24,7 +25,7 @@ import fr.chevallier31.my_batch.conversion.ConversionConfig.PointsMapper;
 public class StepOne {
 
     @Bean
-    public FlatFileItemReader<Points> reader(PointsMapper pointsMapper, FileSystemResource postingFile) {
+    public FlatFileItemReader<Points> transientReader(PointsMapper pointsMapper, FileSystemResource postingFile) {
         return new FlatFileItemReaderBuilder<Points>()
                 .name("points reader")
                 .resource(postingFile)
@@ -51,8 +52,8 @@ public class StepOne {
         };
     }
 
-    @Bean
-    public JdbcBatchItemWriter<Points> writer(DataSource dataSource) {
+    @Bean(name = "PointsTransientWriter")
+    public JdbcBatchItemWriter<Points> transientWriter(DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<Points>()
                 .sql("""
                             INSERT INTO POINTS_TRANSIENT (
@@ -68,8 +69,8 @@ public class StepOne {
 
     @Bean(name = "step1")
     public Step step1(JobRepository jobRepository, DataSourceTransactionManager transactionManager,
-            FlatFileItemReader<Points> reader, JdbcBatchItemWriter<Points> writer) {
-        return new StepBuilder("Acquire posting data", jobRepository)
+            FlatFileItemReader<Points> reader, @Qualifier("PointsTransientWriter")JdbcBatchItemWriter<Points> writer) {
+        return new StepBuilder("1- Acquire posting data", jobRepository)
                 .<Points, Points>chunk(10, transactionManager)
                 .reader(reader)
                 .processor(processor())

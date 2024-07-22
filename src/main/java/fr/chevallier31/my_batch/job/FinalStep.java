@@ -29,7 +29,7 @@ public class FinalStep {
     public Step step3(JobRepository jobRepository,
     DataSourceTransactionManager transactionManager,
     @Qualifier("Cleanup")Tasklet tasklet) {
-        return new StepBuilder("Cleanup", jobRepository)
+        return new StepBuilder("3- Cleanup", jobRepository)
             .tasklet(tasklet, transactionManager)
             .build();
     }

@@ -29,7 +29,7 @@ public class StepZero {
     public Step step0(JobRepository jobRepository,
     DataSourceTransactionManager transactionManager,
     @Qualifier("createPostingInfo")Tasklet tasklet) {
-        return new StepBuilder("Get file info", jobRepository)
+        return new StepBuilder("0- Get file info", jobRepository)
             .tasklet(tasklet, transactionManager)
             .build();
     }

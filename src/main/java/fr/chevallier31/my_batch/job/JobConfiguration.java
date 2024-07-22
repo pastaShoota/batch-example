@@ -17,12 +17,14 @@ public class JobConfiguration {
     public Job importUserJob(JobRepository jobRepository, 
     @Qualifier("step0")Step step0, 
     @Qualifier("step1")Step step1, 
+    @Qualifier("step2")Step step2, 
     @Qualifier("step3")Step step3, 
     JobCompletionNotificationListener listener) {
         return new JobBuilder("importUserJob", jobRepository)
                 .listener(listener)
                 .start(step0)
                 .next(step1)
+                .next(step2)
                 .next(step3)
                 .build();
     }

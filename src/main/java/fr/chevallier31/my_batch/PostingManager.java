@@ -42,6 +42,6 @@ public class PostingManager {
             """, endTime, filename, startTime);
 
         logger.info("truncating POINTS_TRANSIENT");
-        // TODO
+        jdbcTemplate.execute("TRUNCATE TABLE POINTS_TRANSIENT");
     }
 }
