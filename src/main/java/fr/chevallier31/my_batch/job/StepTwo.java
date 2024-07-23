@@ -58,9 +58,9 @@ public class StepTwo {
         return new JdbcBatchItemWriterBuilder<Points>()
             .sql("""
                 INSERT INTO POINTS (
-                    activity_date,fidelity_number,first_name,last_name,fidelity_code,points
+                    activity_date,fidelity_number,first_name,last_name,fidelity_code,points,status
                 ) VALUES (
-                    :activityDate,:fidelityNumber,:firstName,:lastName,:fidelityCode,:points
+                    :activityDate,:fidelityNumber,:firstName,:lastName,:fidelityCode,:points,'SENT'
                 )
                 """)
             .dataSource(dataSource)

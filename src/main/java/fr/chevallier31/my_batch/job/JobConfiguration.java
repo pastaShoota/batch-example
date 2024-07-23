@@ -15,11 +15,12 @@ public class JobConfiguration {
     
     @Bean
     public Job importUserJob(JobRepository jobRepository, 
+    JobCompletionNotificationListener listener,
     @Qualifier("step0")Step step0, 
     @Qualifier("step1")Step step1, 
     @Qualifier("step2")Step step2, 
-    @Qualifier("step3")Step step3, 
-    JobCompletionNotificationListener listener) {
+    @Qualifier("step3")Step step3 
+    ) {
         return new JobBuilder("importUserJob", jobRepository)
                 .listener(listener)
                 .start(step0)

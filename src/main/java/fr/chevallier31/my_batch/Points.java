@@ -10,6 +10,7 @@ public class Points {
     private String          lastName;
     private String          fidelityCode;
     private Integer         points;
+    private String          status;
 
     public LocalDate getActivityDate() {
         return activityDate;
@@ -47,13 +48,20 @@ public class Points {
     public void setPoints(Integer points) {
         this.points = points;
     }
+    public String getStatus() {
+        return status;
+    }
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    
+    // Fake property so that fixedLength tokenizer doesn't complain
     public void setFiller(String str) {}
+
     @Override
     public String toString() {
         return "Points [activityDate=" + activityDate + ", fidelityNumber=" + fidelityNumber + ", firstName="
                 + firstName + ", lastName=" + lastName + ", fidelityCode=" + fidelityCode + ", points=" + points + "]";
     }
-
-    
     
 }

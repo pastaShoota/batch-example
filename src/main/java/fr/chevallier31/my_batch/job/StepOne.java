@@ -5,7 +5,6 @@ import javax.sql.DataSource;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -41,17 +40,6 @@ public class StepOne {
                 .build();
     }
 
-    private ItemProcessor<Points,Points> processor() {
-        // get rid of trailing blanks
-        return (points) -> {
-            points.setFidelityNumber(points.getFidelityNumber().trim());
-            points.setFidelityCode(points.getFidelityCode().trim());
-            points.setFirstName(points.getFirstName().trim());
-            points.setFirstName(points.getFirstName().trim());
-            return points;
-        };
-    }
-
     @Bean(name = "PointsTransientWriter")
     public JdbcBatchItemWriter<Points> transientWriter(DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<Points>()
@@ -73,7 +61,6 @@ public class StepOne {
         return new StepBuilder("1- Acquire posting data", jobRepository)
                 .<Points, Points>chunk(10, transactionManager)
                 .reader(reader)
-                .processor(processor())
                 .writer(writer)
                 .faultTolerant()
                 .skipLimit(1) // skip parse exception on footer record
