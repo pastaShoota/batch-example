@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
@@ -22,9 +23,9 @@ public class PostingManager {
     private java.sql.Timestamp startTime;
     private String filename;
 
-    public PostingManager(JdbcTemplate jdbcTemplate, KeyHolder keyHolder) {
+    public PostingManager(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.keyHolder = keyHolder;
+        this.keyHolder = new GeneratedKeyHolder();
     }
 
     public Integer createPostingInfo(File inputFile){
@@ -38,7 +39,10 @@ public class PostingManager {
         logger.info("inserting info for file " + filename);
         jdbcTemplate.update(new PreparedStatementCreator() {
             public PreparedStatement createPreparedStatement(Connection connection) throws SQLException{
-                return connection.prepareStatement(sql, new String[]{"id"});
+                PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
+                ps.setString(1, filename);
+                ps.setTimestamp(2, startTime);
+                return ps;
             }
         }, keyHolder);
 
