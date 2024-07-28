@@ -1,6 +1,10 @@
-DROP TABLE POINTS_TRANSIENT IF EXISTS;
-DROP TABLE POSTINGS IF EXISTS;
-DROP TABLE POINTS IF EXISTS;
+-- CREATE DATABASE IF NOT EXISTS atn;
+-- USE atn;
+
+-- DROP TABLE IF EXISTS POINTS;
+-- DROP TABLE IF EXISTS POINTS_TRANSIENT;
+-- DROP TABLE IF EXISTS POSTINGS;
+
 
 -- Temporary table to host records posted to ATN
 CREATE TABLE POINTS_TRANSIENT (
@@ -37,3 +41,7 @@ CREATE TABLE POINTS (
     -- no duplicates allowed
     UNIQUE  (activity_date, fidelity_number, first_name,last_name,fidelity_code)
 );
+
+-- USE mysql;
+-- CREATE USER 'atn_user'@'172.17.0.1' IDENTIFIED BY 'my-secret-pw';
+-- GRANT ALL ON atn.* TO 'atn_user'@'172.17.0.1';

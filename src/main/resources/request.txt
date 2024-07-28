@@ -1,0 +1,1 @@
+docker exec -i some-mysql sh -c 'exec mysql --table -uroot -pmy-secret-pw' < src/main/resources/points-join-postings.sql

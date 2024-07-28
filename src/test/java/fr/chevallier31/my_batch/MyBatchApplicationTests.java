@@ -8,22 +8,37 @@ import java.sql.Timestamp;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.test.JobLauncherTestUtils;
+import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @SpringBootTest
+@SpringBatchTest
 class MyBatchApplicationTests {
 	private static Logger logger = LoggerFactory.getLogger(MyBatchApplicationTests.class);
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
+	@Autowired
+    private JobLauncherTestUtils jobLauncherTestUtils;
+
 	@Test
-	void contextLoads() { // @see input data in the test/resources
+	void contextLoads() throws Exception { // @see input data in the test/resources
+		jobLauncherTestUtils.launchJob(testParameters());
 		logResults();
 		verifyResults();
+	}
+
+	private JobParameters testParameters() {
+		return new JobParametersBuilder()
+		.addString("posting.filepath", "src/test/resources/input.csv")
+		.toJobParameters();
 	}
 
 	private void verifyResults() {

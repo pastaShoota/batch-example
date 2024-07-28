@@ -3,6 +3,7 @@ package fr.chevallier31.my_batch.job;
 import javax.sql.DataSource;
 
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
@@ -12,6 +13,7 @@ import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.transform.Range;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
@@ -24,10 +26,13 @@ import fr.chevallier31.my_batch.conversion.ConversionConfig.PointsMapper;
 public class StepOne {
 
     @Bean
-    public FlatFileItemReader<Points> transientReader(PointsMapper pointsMapper, FileSystemResource postingFile) {
+    @StepScope
+    public FlatFileItemReader<Points> transientReader(PointsMapper pointsMapper, 
+        @Value("#{jobParameters['posting.filepath']}") String postingFilepath) {
+            
         return new FlatFileItemReaderBuilder<Points>()
                 .name("points reader")
-                .resource(postingFile)
+                .resource(new FileSystemResource(postingFilepath))
                 .linesToSkip(1) // skip header
                 .fixedLength()
                 .columns(new Range(65, 72), new Range(10, 16),

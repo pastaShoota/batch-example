@@ -8,7 +8,6 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import fr.chevallier31.my_batch.PostingManager;
@@ -17,8 +16,7 @@ import fr.chevallier31.my_batch.PostingManager;
 public class FinalStep {
 
     @Bean(name = "Cleanup")
-    public Tasklet tasklet(FileSystemResource inputFile,
-            PostingManager postingManager) {
+    public Tasklet tasklet(PostingManager postingManager) {
         return (c, cc) -> {
             postingManager.finalizePosting();
             return RepeatStatus.FINISHED;

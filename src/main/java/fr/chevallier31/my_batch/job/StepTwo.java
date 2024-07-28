@@ -1,6 +1,7 @@
 package fr.chevallier31.my_batch.job;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -34,12 +35,12 @@ public class StepTwo {
 
     @Bean
     public JdbcPagingItemReader<Points> pointsReader(DataSource dataSource) {
-        Map<String,Order> sortKeys = new HashMap<String, Order>();
-        sortKeys.put("activity_date", Order.ASCENDING);
-        sortKeys.put("fidelity_number", Order.ASCENDING);
-        sortKeys.put("first_name", Order.ASCENDING);
-        sortKeys.put("last_name", Order.ASCENDING);
-        sortKeys.put("fidelity_code", Order.ASCENDING);
+        LinkedHashMap<String,Order> sortKeys = new LinkedHashMap<String, Order>();
+        sortKeys.put("activityDate", Order.ASCENDING);
+        sortKeys.put("fidelityNumber", Order.ASCENDING);
+        sortKeys.put("firstName", Order.ASCENDING);
+        sortKeys.put("lastName", Order.ASCENDING);
+        sortKeys.put("fidelityCode", Order.ASCENDING);
 
         return new JdbcPagingItemReaderBuilder<Points>()
         .dataSource(dataSource)
@@ -53,9 +54,7 @@ public class StepTwo {
             """)
         .fromClause("POINTS_TRANSIENT")
         .sortKeys(sortKeys)
-        .groupClause("""
-            activity_date, fidelity_number, first_name, last_name, fidelity_code
-            """)
+        .groupClause(String.join(",",sortKeys.keySet()))
         .rowMapper(new DataClassRowMapper<>(Points.class))
         .build();
     }
