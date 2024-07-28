@@ -1,29 +1,29 @@
 package fr.chevallier31.my_batch.job;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.Chunk;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.Order;
-import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuilder;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
@@ -31,7 +31,10 @@ import fr.chevallier31.my_batch.Points;
 
 @Configuration
 public class StepTwo {
-    private static final int CHUNK_SIZE = 100;
+    @Value("${chunk.size:100}")
+    private int chunkSize;
+
+    private static final Logger logger = LoggerFactory.getLogger(StepTwo.class);
 
     @Bean
     public JdbcPagingItemReader<Points> pointsReader(DataSource dataSource) {
@@ -44,8 +47,8 @@ public class StepTwo {
 
         return new JdbcPagingItemReaderBuilder<Points>()
         .dataSource(dataSource)
-        .fetchSize(CHUNK_SIZE)
-        .pageSize(CHUNK_SIZE)
+        .fetchSize(chunkSize)
+        .pageSize(chunkSize)
         .name("pointsReader")
         .selectClause("""
             activity_date AS activityDate, fidelity_number AS fidelityNumber, 
@@ -60,15 +63,23 @@ public class StepTwo {
     }
 
     @Bean(name = "step2")
+    @JobScope
     public Step step2(JobRepository jobRepository, DataSourceTransactionManager transactionManager,
     JdbcPagingItemReader<Points> reader, //@Qualifier("PointsWriter")JdbcBatchItemWriter<Points> writer,
+    @Value("#{jobParameters['ignore.duplicates']}") Boolean ignoreDuplicates,
     DataSource dataSource
     ) {
-        return new StepBuilder("2- Group by holder", jobRepository)
-            .<Points,Points>chunk(CHUNK_SIZE, transactionManager)
+        logger.info("ignoreDuplicates: "+ignoreDuplicates);
+        SimpleStepBuilder<Points,Points> step = new StepBuilder("2- Group by holder", jobRepository)
+            .<Points,Points>chunk(chunkSize, transactionManager)
             .reader(reader)
-            .writer(new StepTwoWriter(dataSource))
-            .build();
+            .writer(new StepTwoWriter(dataSource));
+            if (ignoreDuplicates != null && ignoreDuplicates) {
+                step = step.faultTolerant()
+                    .skip(DuplicateKeyException.class)
+                    .skipLimit(2*chunkSize); // ignore up to a certain point
+            }
+            return step.build();
     }
 
 

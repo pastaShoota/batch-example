@@ -57,3 +57,13 @@ cat ~/.m2/settings.xml
   </mirrors>
 </settings>
 ```
+
+
+## production troubleshooting
+
+If a job has passed the first steps, but fails on inserting Points at the end, you may either:
+
+- fix (or remove) incriminated records inside POINTS_TRANSIENT and restart the very same command line OR
+- restart same command line with this additional argument: `ignore.duplicates=true`
+
+the latter option only deals with duplicate row issues

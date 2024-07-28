@@ -28,7 +28,9 @@ public class PostingManager {
         this.keyHolder = new GeneratedKeyHolder();
     }
 
-    public Integer createPostingInfo(File inputFile){
+    public Integer initializePosting(File inputFile){
+        this.removeTransientData();
+        
         filename = inputFile.getName();
         startTime = new java.sql.Timestamp(System.currentTimeMillis());
         final String sql = """
@@ -59,6 +61,10 @@ public class PostingManager {
             WHERE filename = ? AND start_processed = ?
             """, endTime, filename, startTime);
 
+        this.removeTransientData();
+    }
+        
+    public void removeTransientData() {
         logger.info("truncating POINTS_TRANSIENT");
         jdbcTemplate.execute("TRUNCATE TABLE POINTS_TRANSIENT");
     }

@@ -25,11 +25,14 @@ import fr.chevallier31.my_batch.conversion.ConversionConfig.PointsMapper;
 @Configuration
 public class StepOne {
 
+    @Value("${chunk.size:100}")
+    private Integer chunkSize;
+
     @Bean
     @StepScope
     public FlatFileItemReader<Points> transientReader(PointsMapper pointsMapper, 
         @Value("#{jobParameters['posting.filepath']}") String postingFilepath) {
-            
+
         return new FlatFileItemReaderBuilder<Points>()
                 .name("points reader")
                 .resource(new FileSystemResource(postingFilepath))
@@ -64,7 +67,7 @@ public class StepOne {
     public Step step1(JobRepository jobRepository, DataSourceTransactionManager transactionManager,
             FlatFileItemReader<Points> reader, @Qualifier("PointsTransientWriter")JdbcBatchItemWriter<Points> writer) {
         return new StepBuilder("1- Acquire posting data", jobRepository)
-                .<Points, Points>chunk(10, transactionManager)
+                .<Points, Points>chunk(chunkSize, transactionManager)
                 .reader(reader)
                 .writer(writer)
                 .faultTolerant()

@@ -1,6 +1,7 @@
 package fr.chevallier31.my_batch.job;
 
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParametersValidator;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
@@ -15,6 +16,7 @@ public class JobConfiguration {
     
     @Bean
     public Job importUserJob(JobRepository jobRepository, 
+    JobParametersValidator validator,
     JobCompletionNotificationListener listener,
     @Qualifier("step0")Step step0, 
     @Qualifier("step1")Step step1, 
@@ -22,6 +24,7 @@ public class JobConfiguration {
     @Qualifier("step3")Step step3 
     ) {
         return new JobBuilder("importUserJob", jobRepository)
+                .validator(validator)
                 .listener(listener)
                 .start(step0)
                 .next(step1)

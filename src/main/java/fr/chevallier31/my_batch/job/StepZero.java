@@ -42,7 +42,7 @@ public class StepZero {
         return new Tasklet(){
             @Override
             public RepeatStatus execute(StepContribution sc, ChunkContext cc) {
-                int postingId = postingManager.createPostingInfo(Paths.get(postingFilepath).toFile());
+                int postingId = postingManager.initializePosting(Paths.get(postingFilepath).toFile());
                 // Store the posting ID in context so it can be linked to the soon inserted points data  
                 sc.getStepExecution().getExecutionContext().put("postingId", postingId);
                 return RepeatStatus.FINISHED;
