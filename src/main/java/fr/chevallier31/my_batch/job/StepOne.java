@@ -9,7 +9,6 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.transform.Range;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,11 +37,12 @@ public class StepOne {
                 .resource(new FileSystemResource(postingFilepath))
                 .linesToSkip(1) // skip header
                 .fixedLength()
-                .columns(new Range(65, 72), new Range(10, 16),
-                        new Range(25, 44), new Range(45, 64),
-                        new Range(87, 94), new Range(73, 84),
-                        new Range(95, 119))
-                .names("activityDate", "fidelityNumber",
+                .strict(false) // tolerate (& ignore) non-data records
+                .columns(new Range(1,2),new Range(65, 72), 
+                        new Range(10, 16), new Range(25, 44), 
+                        new Range(45, 64), new Range(87, 94), 
+                        new Range(73, 84), new Range(95, 119))
+                .names("recordType","activityDate", "fidelityNumber",
                         "firstName", "lastName", "fidelityCode", "points", "filler")
                 .fieldSetMapper(pointsMapper)
                 .build();
@@ -70,9 +70,6 @@ public class StepOne {
                 .<Points, Points>chunk(chunkSize, transactionManager)
                 .reader(reader)
                 .writer(writer)
-                .faultTolerant()
-                .skipLimit(1) // skip parse exception on footer record
-                .skip(FlatFileParseException.class)
                 .build();
     }
 }

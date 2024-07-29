@@ -4,14 +4,12 @@ import java.util.LinkedHashMap;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.configuration.annotation.JobScope;
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -65,21 +63,21 @@ public class StepTwo {
     @Bean(name = "step2")
     @JobScope
     public Step step2(JobRepository jobRepository, DataSourceTransactionManager transactionManager,
-    JdbcPagingItemReader<Points> reader, //@Qualifier("PointsWriter")JdbcBatchItemWriter<Points> writer,
+    JdbcPagingItemReader<Points> reader,
     @Value("#{jobParameters['ignore.duplicates']}") Boolean ignoreDuplicates,
     DataSource dataSource
     ) {
-        logger.info("ignoreDuplicates: "+ignoreDuplicates);
         SimpleStepBuilder<Points,Points> step = new StepBuilder("2- Group by holder", jobRepository)
-            .<Points,Points>chunk(chunkSize, transactionManager)
-            .reader(reader)
-            .writer(new StepTwoWriter(dataSource));
-            if (ignoreDuplicates != null && ignoreDuplicates) {
-                step = step.faultTolerant()
-                    .skip(DuplicateKeyException.class)
-                    .skipLimit(2*chunkSize); // ignore up to a certain point
-            }
-            return step.build();
+        .<Points,Points>chunk(chunkSize, transactionManager)
+        .reader(reader)
+        .writer(new StepTwoWriter(dataSource));
+        if (ignoreDuplicates != null && ignoreDuplicates) {
+            logger.info("Beware: duplicate rows will be silently skipped");
+            step = step.faultTolerant()
+                .skip(DuplicateKeyException.class)
+                .skipLimit(2*chunkSize); // ignore up to a certain point
+        }
+        return step.build();
     }
 
 
@@ -105,7 +103,7 @@ public class StepTwo {
                 )
                     """
                 , postingId)
-                );
+            );
         }
     }
 }

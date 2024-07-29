@@ -40,7 +40,10 @@ public class ConversionConfig {
         return new PointsMapper(){
             @Override
             public Points mapFieldSet(FieldSet fs) throws org.springframework.validation.BindException{
-                return mapper.mapFieldSet(fs);
+                if("02".equals(fs.readString("recordType"))){
+                    return mapper.mapFieldSet(fs);
+                }
+                return null;
             }
         };
     }

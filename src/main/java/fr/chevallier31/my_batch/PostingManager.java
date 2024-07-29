@@ -30,7 +30,7 @@ public class PostingManager {
 
     public Integer initializePosting(File inputFile){
         this.removeTransientData();
-        
+
         filename = inputFile.getName();
         startTime = new java.sql.Timestamp(System.currentTimeMillis());
         final String sql = """
@@ -52,7 +52,6 @@ public class PostingManager {
     }
 
     public void finalizePosting() {
-        logger.info("finalizing posting " + filename);
         
         java.sql.Timestamp endTime = new java.sql.Timestamp(System.currentTimeMillis());
         

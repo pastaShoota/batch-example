@@ -57,6 +57,7 @@ public class Points {
     
     // Fake property so that fixedLength tokenizer doesn't complain
     public void setFiller(String str) {}
+    public void setRecordType(String str) {}
 
     @Override
     public String toString() {
